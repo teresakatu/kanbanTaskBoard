@@ -42,23 +42,29 @@ export function useTasks() {
   }
 
   const updateTask = async (taskId: string, changes: Partial<Pick<Task, 'title' | 'description' | 'status' | 'priority' | 'due_date'>>) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
     const { data, error } = await supabase
       .from('tasks')
       .update(changes)
       .eq('id', taskId)
+      .eq('user_id', user.id)
       .select()
       .single()
     if (error) throw error
+    if (!data) throw new Error('Task not found or permission denied')
     setTasks(prev => prev.map(t => t.id === taskId ? data as Task : t))
     return data as Task
   }
 
   const updateTaskStatus = async (taskId: string, status: TaskStatus) => {
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status } : t))
+    const { data: { user } } = await supabase.auth.getUser()
     const { error } = await supabase
       .from('tasks')
       .update({ status })
       .eq('id', taskId)
+      .eq('user_id', user?.id ?? '')
     if (error) { fetchTasks(); throw error }
   }
 

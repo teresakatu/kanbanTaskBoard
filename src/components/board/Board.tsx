@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DndContext, DragOverlay, type DragStartEvent, type DragEndEvent } from '@dnd-kit/core'
+import { DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type DragStartEvent, type DragEndEvent } from '@dnd-kit/core'
 import type { Task, TaskStatus } from '../../types'
 import { COLUMNS } from '../../types'
 import { useTasks } from '../../hooks/useTasks'
@@ -14,6 +14,11 @@ export function Board() {
     const [selectedTask,  setSelectedTask]  = useState<Task | null>(null)
     const [modalOpen,     setModalOpen]     = useState(false)
     const [search,        setSearch]        = useState('')
+
+    const sensors = useSensors(
+        useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } })
+      )
 
     function handleDragStart(e: DragStartEvent) {
         setActiveTask(e.active.data.current?.task ?? null)
@@ -202,7 +207,7 @@ export function Board() {
 
         {/* ── Kanban board ── */}
         {tasks.length > 0 && (
-            <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden', padding: '16px 18px 4px' }}>
                 <div style={{ display: 'flex', gap: 14, height: '100%', alignItems: 'flex-start', minWidth: 'max-content' }}>
                 {COLUMNS.map(col => (
