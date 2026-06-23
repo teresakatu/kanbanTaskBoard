@@ -29,13 +29,27 @@ export function useTasks() {
     priority:    string
     due_date:    string | null
   }) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
     const { data, error } = await supabase
       .from('tasks')
-      .insert(payload)
+      .insert({ ...payload, user_id: user.id })
       .select()
       .single()
     if (error) throw error
     setTasks(prev => [data, ...prev])
+    return data as Task
+  }
+
+  const updateTask = async (taskId: string, changes: Partial<Pick<Task, 'title' | 'description' | 'status' | 'priority' | 'due_date'>>) => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .update(changes)
+      .eq('id', taskId)
+      .select()
+      .single()
+    if (error) throw error
+    setTasks(prev => prev.map(t => t.id === taskId ? data as Task : t))
     return data as Task
   }
 
@@ -54,5 +68,5 @@ export function useTasks() {
     if (error) { fetchTasks(); throw error }
   }
 
-  return { tasks, loading, error, createTask, updateTaskStatus, deleteTask, refetch: fetchTasks }
+  return { tasks, loading, error, createTask, updateTask, updateTaskStatus, deleteTask, refetch: fetchTasks }
 }
