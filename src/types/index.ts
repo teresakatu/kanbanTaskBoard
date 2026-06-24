@@ -22,6 +22,22 @@ export interface TeamMember {
   created_at: string
 }
 
+export interface Comment {
+  id:         string
+  task_id:    string
+  user_id:    string
+  content:    string
+  created_at: string
+}
+
+export interface ActivityLog {
+  id:         string
+  task_id:    string
+  user_id:    string
+  action:     string
+  created_at: string
+}
+
 export const COLUMNS: { id: TaskStatus; label: string; color: string }[] = [
   { id: 'todo',        label: 'To Do',       color: 'var(--s-todo)'   },
   { id: 'in_progress', label: 'In Progress', color: 'var(--s-prog)'   },
