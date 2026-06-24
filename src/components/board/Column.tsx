@@ -1,5 +1,5 @@
 import { useDroppable } from '@dnd-kit/core'
-import type { Task } from '../../types'
+import type { Task, TeamMember } from '../../types'  // ← add TeamMember
 import { TaskCard } from './TaskCard'
 
 function StatusDot({ color, status }: { color: string; status: string }) {
@@ -23,11 +23,12 @@ interface Props {
   label:       string
   color:       string
   tasks:       Task[]
+  members:     TeamMember[]   // ← add
   onCardClick: (task: Task) => void
   onAddTask:   () => void
 }
 
-export function Column({ id, label, color, tasks, onCardClick, onAddTask }: Props) {
+export function Column({ id, label, color, tasks, members, onCardClick, onAddTask }: Props) {  // ← add members
   const { setNodeRef, isOver } = useDroppable({ id })
 
   return (
@@ -66,15 +67,12 @@ export function Column({ id, label, color, tasks, onCardClick, onAddTask }: Prop
         }}
       >
         {tasks.length === 0 && !isOver && (
-          <div style={{
-            padding: '24px 0', textAlign: 'center',
-            fontSize: 12.5, color: 'var(--text-3)',
-          }}>
+          <div style={{ padding: '24px 0', textAlign: 'center', fontSize: 12.5, color: 'var(--text-3)' }}>
             No tasks
           </div>
         )}
         {tasks.map(task => (
-          <TaskCard key={task.id} task={task} onClick={onCardClick} />
+          <TaskCard key={task.id} task={task} members={members} onClick={onCardClick} />  // ← add members
         ))}
       </div>
     </section>

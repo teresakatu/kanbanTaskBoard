@@ -1,6 +1,6 @@
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import type { Task } from '../../types'
+import type { Task, TeamMember } from '../../types'  // ← fixed: TeamMember imported
 
 function PriorityIcon({ priority }: { priority: string }) {
   const colors = {
@@ -46,32 +46,35 @@ function DueDateBadge({ due_date }: { due_date: string }) {
 }
 
 interface Props {
-  task:      Task
-  onClick:   (task: Task) => void
+  task:       Task
+  members:    TeamMember[]
+  onClick:    (task: Task) => void
   isOverlay?: boolean
 }
 
-export function TaskCard({ task, onClick, isOverlay }: Props) {
+export function TaskCard({ task, onClick, members, isOverlay }: Props) {  // ← fixed: members destructured
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id:   task.id,
     data: { task },
   })
 
   const style: React.CSSProperties = {
-    transform:  CSS.Transform.toString(transform),
-    opacity:    isDragging ? 0.4 : 1,
-    background: isOverlay ? 'var(--surface-3)' : 'var(--surface-2)',
-    border:     `1px solid ${isOverlay ? 'var(--border-2)' : 'var(--border)'}`,
-    borderRadius: 10,
-    padding:    13,
-    display:    'flex',
+    transform:     CSS.Transform.toString(transform),
+    opacity:       isDragging ? 0.4 : 1,
+    background:    isOverlay ? 'var(--surface-3)' : 'var(--surface-2)',
+    border:        `1px solid ${isOverlay ? 'var(--border-2)' : 'var(--border)'}`,
+    borderRadius:  10,
+    padding:       13,
+    display:       'flex',
     flexDirection: 'column',
-    gap:        8,
-    cursor:     'pointer',
-    transition: isDragging ? 'none' : 'border-color .12s, background .12s, transform .12s',
-    boxShadow:  isOverlay ? '0 8px 24px rgba(0,0,0,.5)' : 'none',
-    touchAction: 'none',
+    gap:           8,
+    cursor:        'pointer',
+    transition:    isDragging ? 'none' : 'border-color .12s, background .12s, transform .12s',
+    boxShadow:     isOverlay ? '0 8px 24px rgba(0,0,0,.5)' : 'none',
+    touchAction:   'none',
   }
+
+  const assignee = members.find(m => m.id === task.assignee_id)
 
   return (
     <article
@@ -95,7 +98,7 @@ export function TaskCard({ task, onClick, isOverlay }: Props) {
         el.style.transform   = 'none'
       }}
     >
-      {/* Priority with titel*/}
+      {/* Priority + title */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
         <PriorityIcon priority={task.priority} />
         <span style={{ fontSize: 13.5, fontWeight: 500, lineHeight: 1.4, color: 'var(--text)' }}>
@@ -120,6 +123,16 @@ export function TaskCard({ task, onClick, isOverlay }: Props) {
           #{task.id.slice(-4).toUpperCase()}
         </span>
         {task.due_date && <DueDateBadge due_date={task.due_date} />}
+        {assignee && (
+          <span title={assignee.name} style={{
+            marginLeft: 'auto', width: 20, height: 20, borderRadius: '50%',
+            background: assignee.color, display: 'inline-flex',
+            alignItems: 'center', justifyContent: 'center',
+            fontSize: 10, color: '#fff', fontWeight: 700, flexShrink: 0,
+          }}>
+            {assignee.name[0].toUpperCase()}
+          </span>
+        )}
       </div>
     </article>
   )
