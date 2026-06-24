@@ -1,9 +1,11 @@
 import { Sidebar } from './components/layout/Sidebar'
 import { Board }   from './components/board/Board'
 import { useAuth } from './context/AuthContext'
+import { useTeamMembers } from './hooks/useTeamMembers'
 
 function App() {
   const { loading } = useAuth()
+  const { members, addMember, removeMember } = useTeamMembers()
 
   if (loading) return (
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
@@ -13,9 +15,9 @@ function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100%', overflow: 'hidden', background: 'var(--bg)' }}>
-      <Sidebar />
+      <Sidebar members={members} addMember={addMember} removeMember={removeMember} />
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <Board />
+        <Board members={members} />
       </main>
     </div>
   )

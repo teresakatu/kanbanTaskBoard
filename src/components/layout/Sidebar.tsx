@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTeamMembers } from '../../hooks/useTeamMembers'
+import type { TeamMember } from '../../types'
 
 const MEMBER_COLORS = ['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#14b8a6']
 
@@ -16,9 +16,14 @@ function Icon({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function Sidebar() {
-  const { members, addMember, removeMember } = useTeamMembers()
-  const [newName,    setNewName]    = useState('')
+interface Props {
+  members:      TeamMember[]
+  addMember:    (name: string, color: string) => Promise<TeamMember>
+  removeMember: (id: string) => Promise<void>
+}
+
+export function Sidebar({ members, addMember, removeMember }: Props) {
+  const [newName,      setNewName]      = useState('')
   const [addingMember, setAddingMember] = useState(false)
   const [pickedColor,  setPickedColor]  = useState(MEMBER_COLORS[0])
 
@@ -112,7 +117,8 @@ export function Sidebar() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {members.map(m => (
-            <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 8, height: 30, padding: '0 9px', borderRadius: 7, color: 'var(--text-2)', fontSize: 13 }}
+            <div key={m.id}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, height: 30, padding: '0 9px', borderRadius: 7, color: 'var(--text-2)', fontSize: 13 }}
               onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
